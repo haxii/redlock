@@ -12,7 +12,7 @@ type Lock struct {
 	redis *redis.Client
 }
 
-func NewLock(redis *redis.Client, maxTTL time.Duration) *Lock {
+func NewLock(redis *redis.Client) *Lock {
 	return &Lock{redis: redis}
 }
 
@@ -41,7 +41,7 @@ func (l *Lock) LockWithTime(ctx context.Context, id string, minTTL, maxTTL time.
 //  如果存在但已过最小锁定期解锁后返回 0
 //  如果存在但未过最小锁定期解锁后返回 对应的存活时间 以秒计
 func (l *Lock) UnLock(ctx context.Context, id string) (int, error) {
-	return luaReleaseLock.Run(context.Background(), l.redis, []string{id}, time.Now().Unix()).Int()
+	return luaReleaseLock.Run(ctx, l.redis, []string{id}, time.Now().Unix()).Int()
 }
 
 // luaReleaseLock Redis lua script 解锁指定 key
