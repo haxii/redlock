@@ -2,6 +2,7 @@ package redlock
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,20 +17,18 @@ func NewLock(redis *redis.Client) *Lock {
 	return &Lock{redis: redis}
 }
 
-// LockWithTime 给指定 ID 加分布式锁, 此 ID 在指定 minTTL 时间内无论是否消费均不会被再次加锁
-// maxTTL 默认为 1s
+var ErrMaxTTLShouldBeSet = errors.New("max ttl in lock should be set")
+
+// LockWithTime 给指定 ID 加分布式锁, 此 ID 在指定 minTTL 时间内无论是否解锁均不会被再次加锁
 func (l *Lock) LockWithTime(ctx context.Context, id string, minTTL, maxTTL time.Duration) (bool, error) {
+	if maxTTL <= 0 {
+		return false, ErrMaxTTLShouldBeSet
+	}
 	if minTTL < 0 {
 		minTTL = 0
 	}
-	if maxTTL < 0 {
-		maxTTL = minTTL
-	}
 	if minTTL > maxTTL {
 		maxTTL = minTTL
-	}
-	if maxTTL == 0 {
-		maxTTL = time.Second
 	}
 	// 此锁不应该在该时间戳前过期, 锁的 value 即是此过期时间
 	lockShouldNotExpBefore := fmt.Sprintf("%d", time.Now().Add(minTTL).Unix())

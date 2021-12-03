@@ -54,13 +54,13 @@ func TestLock_LockWithTime(t *testing.T) {
 			minTTL: 2 * time.Second, maxTTL: 3 * time.Second, unlockAfter: 5 * time.Second, secondUnlockAfter: time.Second},
 			true, -1, -1},
 		{"case-4", args{ctx: ctx, id: lock4,
-			minTTL: 3 * time.Second, maxTTL: 0, unlockAfter: 1 * time.Second, secondUnlockAfter: 3 * time.Second},
+			minTTL: 3 * time.Second, maxTTL: time.Second, unlockAfter: 1 * time.Second, secondUnlockAfter: 3 * time.Second},
 			true, 1, -1},
 		{"case-5", args{ctx: ctx, id: lock5,
-			minTTL: 3 * time.Second, maxTTL: 0, unlockAfter: 5 * time.Second, secondUnlockAfter: time.Millisecond},
+			minTTL: 3 * time.Second, maxTTL: time.Second, unlockAfter: 5 * time.Second, secondUnlockAfter: time.Millisecond},
 			true, -1, -1},
 		{"case-6", args{ctx: ctx, id: lock6,
-			minTTL: 0, maxTTL: 0, unlockAfter: time.Millisecond, secondUnlockAfter: 10 * time.Millisecond},
+			minTTL: 0, maxTTL: time.Second, unlockAfter: time.Millisecond, secondUnlockAfter: 10 * time.Millisecond},
 			true, 0, -1},
 	}
 	for _, tt := range tests {
